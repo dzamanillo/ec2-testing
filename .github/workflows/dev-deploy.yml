@@ -50,8 +50,8 @@ jobs:
             if [ ! -d "app" ]; then
               mkdir app
             fi
-            cd /home/ubuntu/app/src
+            cd /home/ubuntu/app
             pwd
-            pm2 restart main.ts || pm2 start main.ts
+            pm2 restart --interpreter ./node_modules/.bin/ts-node src/main.ts || pm2 start --interpreter ./node_modules/.bin/ts-node src/main.ts
             sudo systemctl restart nginx
           envs: TEST
