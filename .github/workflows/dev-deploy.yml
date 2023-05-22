@@ -10,8 +10,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      TEST: 'Hello World'
 
     steps:
       - name: Checkout Code
@@ -30,6 +28,23 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Create App Dir and ENV
+        uses: appleboy/ssh-action@master
+        with:
+          host: dev-server.dzamanillo.com
+          username: ubuntu
+          key: ${{ secrets.DEV_DEPLOY_KEY }}
+          script: |
+            cd /home/ubuntu
+            if [ ! -d "app" ]; then
+              mkdir app
+            fi
+            cd app
+            if [ ! -f ".env"]; then
+              sudo rm .env
+            fi
+            cat ${{ secrets.ENV }} >> .env
+
       - name: Rsync to Server
         uses: burnett01/rsync-deployments@5.2.1
         with:
@@ -46,12 +61,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.DEV_DEPLOY_KEY }}
           script: |
-            cd /home/ubuntu
-            if [ ! -d "app" ]; then
-              mkdir app
-            fi
             cd /home/ubuntu/app
-            pwd
             pm2 restart --interpreter ./node_modules/.bin/ts-node src/main.ts || pm2 start --interpreter ./node_modules/.bin/ts-node src/main.ts
             sudo systemctl restart nginx
-          envs: TEST
