@@ -43,6 +43,7 @@ jobs:
             if [ ! -f ".env"]; then
               sudo rm .env
             fi
+            touch .env
             cat ${{ secrets.ENV }} >> .env
 
       - name: Rsync to Server
@@ -61,6 +62,5 @@ jobs:
           username: ubuntu
           key: ${{ secrets.DEV_DEPLOY_KEY }}
           script: |
-            cd /home/ubuntu/app
-            pm2 restart --interpreter ./node_modules/.bin/ts-node src/main.ts || pm2 start --interpreter ./node_modules/.bin/ts-node src/main.ts
+            pm2 restart --interpreter ./node_modules/.bin/ts-node /home/ubuntu/app/src/main.ts || pm2 start --interpreter ./node_modules/.bin/ts-node /home/ubuntu/app/src/main.ts
             sudo systemctl restart nginx
