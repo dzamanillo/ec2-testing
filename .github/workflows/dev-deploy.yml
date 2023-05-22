@@ -10,6 +10,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      TEST: 'Hello World'
 
     steps:
       - name: Checkout Code
@@ -32,8 +34,18 @@ jobs:
         uses: burnett01/rsync-deployments@5.2.1
         with:
           switches: -avzr --delete
-          path: dist/
           remote_path: /home/ubuntu/app
           remote_host: dev-server.dzamanillo.com
           remote_user: ubuntu
           remote_key: ${{ secrets.DEV_DEPLOY_KEY }}
+
+      - name: Restart or Start PM2 Process
+        uses: appleboy/ssh-action@master
+        with:
+          host: dev-server.dzamanillo.com
+          username: ubuntu
+          key: ${{ secrets.DEV_DEPLOY_KEY }}
+          script: |
+            cd /home/ubuntu/app/ec2-testing
+            pm2 restart app.js || pm2 start app.js
+          envs: TEST
