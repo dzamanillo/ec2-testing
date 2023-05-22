@@ -47,5 +47,5 @@ jobs:
           key: ${{ secrets.DEV_DEPLOY_KEY }}
           script: |
             cd /home/ubuntu/app/ec2-testing
-            pm2 restart app.js || pm2 start app.js
+            pm2 restart main.ts || pm2 start main.ts
           envs: TEST
